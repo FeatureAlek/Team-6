@@ -12,12 +12,9 @@ import jakarta.validation.constraints.*;
 //get POST data -> create ACC
 public class CreateAccountRequest
 {
-    @NotBlank(message = "IBAN cannot be empty")
-    private String iban;
-
     @NotBlank(message = "Owner name cannot be empty")
     private String ownerName;
 
-    @Min(value = 0, message = "Balance cannot be negative")
+    @PositiveOrZero(message = "Balance cannot be negative")
     private double balance;
 }
