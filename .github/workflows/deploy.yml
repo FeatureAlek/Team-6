@@ -22,8 +22,8 @@ jobs:
   build-and-deploy:
     runs-on: self-hosted
     env:
-      APP_CONTAINER_NAME: acn-bootcamp-app
-      APP_IMAGE_NAME: acn-bootcamp-app
+      APP_CONTAINER_NAME: team6-banking-app
+      APP_IMAGE_NAME: team6-banking-app
     
     steps:
     - name: Checkout code
@@ -55,7 +55,7 @@ jobs:
         TIMESTAMP=$(date -u +'%Y-%m-%d %H:%M:%S UTC')
         PORT_INPUT="${{ github.event.inputs.server_port }}"
         if [ -z "$PORT_INPUT" ]; then
-          PORT_INPUT="3100"
+          PORT_INPUT="3600"
         fi
         
         echo "branch=$BRANCH" >> $GITHUB_OUTPUT
@@ -136,7 +136,7 @@ jobs:
             exit 1
           fi
 
-          if docker logs $APP_CONTAINER_NAME 2>&1 | grep -q "Started Application in"; then
+          if docker logs $APP_CONTAINER_NAME 2>&1 | grep -qE "Started [A-Za-z]+ in"; then
             echo "Application container is running and Spring Boot has started"
             docker ps --filter "name=$APP_CONTAINER_NAME"
             exit 0
