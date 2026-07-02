@@ -1,18 +1,16 @@
 package lv.acnbootcamp.team6.banking.dto;
 
-//imports
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lv.acnbootcamp.team6.banking.model.TransactionType;
+
 import java.time.LocalDateTime;
 
-//lombok
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-
-//Transaction Response
-public class TransactionResponse
-{
+@NoArgsConstructor
+public class TransactionResponse {
     private Long id;
     private Long accountId;
     private TransactionType type;

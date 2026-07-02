@@ -1,19 +1,15 @@
 package lv.acnbootcamp.team6.banking.dto;
 
-//imports
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-//lombok
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
-//struct stores user data
-public class AccountResponse
-{
+public class AccountResponse {
     private Long id;
     private String iban;
     private String ownerName;
     private double balance;
 }
-
