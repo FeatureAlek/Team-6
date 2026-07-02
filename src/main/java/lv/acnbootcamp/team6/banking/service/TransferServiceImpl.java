@@ -3,13 +3,11 @@ package lv.acnbootcamp.team6.banking.service;
 import lv.acnbootcamp.team6.banking.dto.AccountResponse;
 import lv.acnbootcamp.team6.banking.dto.TransactionResponse;
 import lv.acnbootcamp.team6.banking.dto.TransferRequest;
-import lv.acnbootcamp.team6.banking.model.Account;
 import lv.acnbootcamp.team6.banking.model.Transaction;
 import lv.acnbootcamp.team6.banking.model.TransactionType;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.security.auth.login.AccountNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +28,11 @@ public class TransferServiceImpl implements TransferService {
         AccountResponse from = accountService.getById(request.getFromAccountId());
         AccountResponse to = accountService.getById(request.getToAccountId());
 
-        if (from == null || to == null) {
+        if (to == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid receiver account");
         }
 
-        if (from == null || to == null) {
+        if (from == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sender account");
         }
 

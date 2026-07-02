@@ -5,7 +5,6 @@ import lombok.*;
 import lv.acnbootcamp.team6.banking.dto.AccountResponse;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.ThreadLocalRandom;
 
 //lombok
 @Data
