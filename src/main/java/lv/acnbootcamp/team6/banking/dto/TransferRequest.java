@@ -1,9 +1,11 @@
 package lv.acnbootcamp.team6.banking.dto;
 
 //imports
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+
+import java.math.BigDecimal;
 
 //lombok
 @Data
@@ -19,8 +21,9 @@ public class TransferRequest
     @NotNull(message = "Destination account ID is required")
     private Long toAccountId;
 
-    @Min(value = 1, message = "Amount must be greater than 0")
-    private double amount;
+    @NotNull
+    @DecimalMin(value = "0.01", message = "Amount must be greater than 0")
+    private BigDecimal amount;
 
     private String note;
 }

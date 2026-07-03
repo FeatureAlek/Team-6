@@ -32,36 +32,29 @@ public class TransferServiceImpl implements TransferService {
         AccountResponse to = accountService.getById(request.getToAccountId());
 
         if (from == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Invalid sender account");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sender account");
         }
 
         if (to == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Invalid receiver account");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid receiver account");
         }
 
         if (from.getId().equals(to.getId())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Cannot transfer to the same account");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot transfer to the same account");
         }
 
-        if (request.getAmount() <= 0) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Amount must be greater than zero");
+        double amount = request.getAmount().doubleValue();
+
+        if (amount <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Amount must be greater than zero");
         }
 
-        if (from.getBalance() < request.getAmount()) {
+        if (from.getBalance() < amount) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient balance");
         }
 
-        // update balances
-        from.setBalance(from.getBalance() - request.getAmount());
-        to.setBalance(to.getBalance() + request.getAmount());
+        from.setBalance(from.getBalance() - amount);
+        to.setBalance(to.getBalance() + amount);
 
         Long groupId = TRANSFER_GROUP_ID.incrementAndGet();
         LocalDateTime createdAt = LocalDateTime.now();
@@ -70,7 +63,7 @@ public class TransferServiceImpl implements TransferService {
                 .id(TRANSACTION_ID.incrementAndGet())
                 .account(from)
                 .type(TransactionType.WITHDRAWAL)
-                .amount(request.getAmount())
+                .amount(amount)
                 .createdAt(createdAt)
                 .note(request.getNote())
                 .transferGroupId(groupId)
@@ -80,7 +73,7 @@ public class TransferServiceImpl implements TransferService {
                 .id(TRANSACTION_ID.incrementAndGet())
                 .account(to)
                 .type(TransactionType.DEPOSIT)
-                .amount(request.getAmount())
+                .amount(amount)
                 .createdAt(createdAt)
                 .note(request.getNote())
                 .transferGroupId(groupId)
@@ -88,7 +81,6 @@ public class TransferServiceImpl implements TransferService {
 
         transactions.add(withdrawal);
         transactions.add(deposit);
-
 
         return List.of(
                 TransactionResponse.builder()
@@ -115,7 +107,6 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public List<TransactionResponse> getTransactionsByAccount(Long accountId) {
-
         return transactions.stream()
                 .filter(t -> t.getAccount().getId().equals(accountId))
                 .map(t -> TransactionResponse.builder()
