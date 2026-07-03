@@ -15,10 +15,11 @@ import java.time.LocalDateTime;
 public class Transaction
 {
     private Long id;
-    private AccountResponse fromAccount;
-    private AccountResponse toAccount;
+    private AccountResponse account;
     private TransactionType type;
     private double amount;
     private LocalDateTime createdAt;
     private String note;
+    private Long transferGroupId;
+
 }

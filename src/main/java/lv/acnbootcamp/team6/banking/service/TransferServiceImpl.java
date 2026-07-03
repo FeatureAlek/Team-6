@@ -10,12 +10,14 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class TransferServiceImpl implements TransferService {
     private final AccountServiceImpl accountService;
-    private static final AtomicLong ID_GENERATOR = new AtomicLong();
+    private static final AtomicLong TRANSACTION_ID = new AtomicLong();
+    private static final AtomicLong TRANSFER_GROUP_ID = new AtomicLong();
 
     private final List<Transaction> transactions = new ArrayList<>();
 
@@ -24,16 +26,32 @@ public class TransferServiceImpl implements TransferService {
     }
 
     @Override
-    public TransactionResponse transfer(TransferRequest request) {
+    public List<TransactionResponse> transfer(TransferRequest request) {
         AccountResponse from = accountService.getById(request.getFromAccountId());
         AccountResponse to = accountService.getById(request.getToAccountId());
 
-        if (to == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid receiver account");
+        if (from == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid sender account");
         }
 
-        if (from == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sender account");
+        if (to == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid receiver account");
+        }
+
+        if (from.getId().equals(to.getId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Cannot transfer to the same account");
+        }
+
+        if (request.getAmount() <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Amount must be greater than zero");
         }
 
         if (from.getBalance() < request.getAmount()) {
@@ -44,44 +62,69 @@ public class TransferServiceImpl implements TransferService {
         from.setBalance(from.getBalance() - request.getAmount());
         to.setBalance(to.getBalance() + request.getAmount());
 
-        Transaction transaction = Transaction.builder()
-                .id(ID_GENERATOR.incrementAndGet())
-                .fromAccount(from)
-                .toAccount(to)
-                .type(TransactionType.TRANSFER)
+        Long groupId = TRANSFER_GROUP_ID.incrementAndGet();
+        LocalDateTime createdAt = LocalDateTime.now();
+
+        Transaction withdrawal = Transaction.builder()
+                .id(TRANSACTION_ID.incrementAndGet())
+                .account(from)
+                .type(TransactionType.WITHDRAWAL)
                 .amount(request.getAmount())
-                .createdAt(LocalDateTime.now())
+                .createdAt(createdAt)
                 .note(request.getNote())
+                .transferGroupId(groupId)
                 .build();
 
-        transactions.add(transaction);
-
-        return TransactionResponse.builder()
-                .id(transaction.getId())
-                .fromAccountId(from.getId())
-                .toAccountId(to.getId())
-                .type(transaction.getType())
-                .amount(transaction.getAmount())
-                .createdAt(transaction.getCreatedAt())
-                .note(transaction.getNote())
+        Transaction deposit = Transaction.builder()
+                .id(TRANSACTION_ID.incrementAndGet())
+                .account(to)
+                .type(TransactionType.DEPOSIT)
+                .amount(request.getAmount())
+                .createdAt(createdAt)
+                .note(request.getNote())
+                .transferGroupId(groupId)
                 .build();
 
+        transactions.add(withdrawal);
+        transactions.add(deposit);
+
+
+        return List.of(
+                TransactionResponse.builder()
+                        .id(withdrawal.getId())
+                        .accountId(withdrawal.getAccount().getId())
+                        .type(withdrawal.getType())
+                        .amount(withdrawal.getAmount())
+                        .createdAt(withdrawal.getCreatedAt())
+                        .note(withdrawal.getNote())
+                        .transferGroupId(groupId)
+                        .build(),
+
+                TransactionResponse.builder()
+                        .id(deposit.getId())
+                        .accountId(deposit.getAccount().getId())
+                        .type(deposit.getType())
+                        .amount(deposit.getAmount())
+                        .createdAt(deposit.getCreatedAt())
+                        .note(deposit.getNote())
+                        .transferGroupId(groupId)
+                        .build()
+        );
     }
 
     @Override
     public List<TransactionResponse> getTransactionsByAccount(Long accountId) {
+
         return transactions.stream()
-                .filter(t ->
-                        t.getFromAccount().getId().equals(accountId)
-                                || t.getToAccount().getId().equals(accountId))
+                .filter(t -> t.getAccount().getId().equals(accountId))
                 .map(t -> TransactionResponse.builder()
                         .id(t.getId())
-                        .fromAccountId(t.getFromAccount().getId())
-                        .toAccountId(t.getToAccount().getId())
+                        .accountId(t.getAccount().getId())
                         .type(t.getType())
                         .amount(t.getAmount())
                         .createdAt(t.getCreatedAt())
                         .note(t.getNote())
+                        .transferGroupId(t.getTransferGroupId())
                         .build())
                 .toList();
     }

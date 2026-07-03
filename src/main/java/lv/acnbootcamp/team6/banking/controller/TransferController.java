@@ -18,8 +18,9 @@ public class TransferController {
         this.transferService = transferService;
     }
 
+
     @PostMapping
-    public TransactionResponse transfer(@Valid @RequestBody TransferRequest request) {
+    public List<TransactionResponse> transfer(@Valid @RequestBody TransferRequest request) {
         return transferService.transfer(request);
     }
 
