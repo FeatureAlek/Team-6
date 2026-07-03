@@ -1,15 +1,14 @@
 package lv.acnbootcamp.team6.banking.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+//imports
+import lombok.*;
 import lv.acnbootcamp.team6.banking.model.TransactionType;
-
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class TransactionResponse {
     private Long id;
     private Long accountId;
@@ -17,4 +16,5 @@ public class TransactionResponse {
     private double amount;
     private LocalDateTime createdAt;
     private String note;
+    private Long transferGroupId;
 }
