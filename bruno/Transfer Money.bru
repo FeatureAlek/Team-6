@@ -1,0 +1,20 @@
+meta {
+  name: Transfer Money
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:3600/transfer
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "fromAccountId": 1,
+    "toAccountId": 2,
+    "amount": 250.00,
+    "note": "Payment for services"
+  }
+}
