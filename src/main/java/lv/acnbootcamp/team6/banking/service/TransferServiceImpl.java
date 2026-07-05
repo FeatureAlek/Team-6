@@ -53,8 +53,10 @@ public class TransferServiceImpl implements TransferService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient balance");
         }
 
-        from.setBalance(from.getBalance() - amount);
-        to.setBalance(to.getBalance() + amount);
+        //from.setBalance(from.getBalance() - amount);
+        //to.setBalance(to.getBalance() + amount);
+
+        accountService.transferMoney(request.getFromAccountId(), request.getToAccountId(), amount);
 
         Long groupId = TRANSFER_GROUP_ID.incrementAndGet();
         LocalDateTime createdAt = LocalDateTime.now();
@@ -120,4 +122,6 @@ public class TransferServiceImpl implements TransferService {
                         .build())
                 .toList();
     }
+
+
 }

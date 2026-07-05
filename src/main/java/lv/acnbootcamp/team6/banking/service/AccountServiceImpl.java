@@ -59,4 +59,14 @@ public class AccountServiceImpl implements AccountService {
     private String generateIban() {
         return "LV%018d".formatted(ThreadLocalRandom.current().nextLong(1_000_000_000_000_000_000L));
     }
+
+    //Actual Money Transfer
+    public void transferMoney(Long fromId, Long toId, double amount)
+    {
+        Account from = requireAccount(fromId);
+        Account to = requireAccount(toId);
+
+        from.setBalance(from.getBalance() - amount);
+        to.setBalance(to.getBalance() + amount);
+    }
 }
