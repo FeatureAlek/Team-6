@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
@@ -20,7 +20,7 @@ public class TransferServiceImpl implements TransferService {
     private static final AtomicLong TRANSACTION_ID = new AtomicLong();
     private static final AtomicLong TRANSFER_GROUP_ID = new AtomicLong();
 
-    private final List<Transaction> transactions = new ArrayList<>();
+    private final List<Transaction> transactions = new CopyOnWriteArrayList<>();
 
     public TransferServiceImpl(AccountServiceImpl accountService) {
         this.accountService = accountService;
@@ -52,9 +52,6 @@ public class TransferServiceImpl implements TransferService {
         if (from.getBalance() < amount) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient balance");
         }
-
-        //from.setBalance(from.getBalance() - amount);
-        //to.setBalance(to.getBalance() + amount);
 
         accountService.transferMoney(request.getFromAccountId(), request.getToAccountId(), amount);
 
@@ -122,6 +119,4 @@ public class TransferServiceImpl implements TransferService {
                         .build())
                 .toList();
     }
-
-
 }

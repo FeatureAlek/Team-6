@@ -2,13 +2,11 @@ package lv.acnbootcamp.team6.banking.service;
 
 import lv.acnbootcamp.team6.banking.dto.AccountResponse;
 import lv.acnbootcamp.team6.banking.dto.CreateAccountRequest;
-import lv.acnbootcamp.team6.banking.dto.TransactionResponse;
 import lv.acnbootcamp.team6.banking.model.Account;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -35,12 +33,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountResponse getById(Long id) {
         return toResponse(requireAccount(id));
-    }
-
-    @Override
-    public List<TransactionResponse> getTransactions(Long id) {
-        requireAccount(id);
-        return List.of();   // no transactions yet — populated once the transfer feature exists
     }
 
     private Account requireAccount(Long id) {
